@@ -7,19 +7,17 @@
 
 #include <stdint.h>
 
-__attribute__((section(".multiboot")))
 struct multiboot2_header {
     uint32_t magic;
     uint32_t architecture;
     uint32_t header_length;
     uint32_t checksum;
-    // Tags follow
     uint16_t type;
     uint16_t flags;
     uint32_t size;
-} __attribute__((aligned(8))) multiboot_hdr = {
+} __attribute__((packed)) __attribute__((section(".multiboot"))) multiboot_hdr = {
     .magic = 0xE85250D6,
-    .architecture = 0, // i386 protected mode
+    .architecture = 0,
     .header_length = sizeof(struct multiboot2_header),
     .checksum = -(0xE85250D6 + 0 + sizeof(struct multiboot2_header)),
     .type = 0,
@@ -42,23 +40,22 @@ void _start(void) {
 }
 
 void kernel_main(void) {
-    // Keep interrupts disabled until fully initialized
-    __asm__ volatile("cli");
-    
-    // Verify we're in long mode
-    uint64_t rax;
-    __asm__ volatile("mov %%rax, %0" : "=r"(rax));
-    
-    // Initialize core components
+    // Initialize VGA first for debug output
     vga_init();
-    vga_print("CPU Mode Check: ");
-    if (rax & (1ULL << 63)) {
-        vga_print("64-bit OK\n");
-    } else {
+    vga_print("Checking CPU mode...\n");
+    
+    // Check if we're in long mode by testing CS segment
+    uint16_t cs;
+    __asm__ volatile("mov %%cs, %0" : "=r"(cs));
+    
+    if ((cs & 0x8) == 0) {
         vga_print("Not in 64-bit mode!\n");
         while(1) __asm__ volatile("hlt");
     }
     
+    vga_print("64-bit mode confirmed\n");
+    
+    // Continue with initialization
     fs_init();
     syscall_init();
     interrupts_init();

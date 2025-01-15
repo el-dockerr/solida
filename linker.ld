@@ -1,26 +1,28 @@
-OUTPUT_FORMAT("elf64-x86-64")
 ENTRY(_start)
+OUTPUT_FORMAT(elf64-x86-64)
 
 SECTIONS {
-    . = 1M;
+    . = 0x100000;    /* Load at 1MB */
 
-    .boot : {
+    .boot ALIGN(4K) : {
         *(.multiboot)
     }
 
     .text ALIGN(4K) : {
-        *(.text)
+        *(.text*)
     }
 
     .rodata ALIGN(4K) : {
-        *(.rodata)
+        *(.rodata*)
     }
 
     .data ALIGN(4K) : {
-        *(.data)
+        *(.data*)
     }
 
     .bss ALIGN(4K) : {
-        *(.bss)
+        *(COMMON)
+        *(.bss*)
+        *(.bootstrap_stack)
     }
 }

@@ -1,0 +1,43 @@
+# Solida64 Microkernel TODOs
+
+## Core Kernel
+- [ ] Implement message passing IPC
+- [ ] Add memory management server
+- [ ] Create device access framework
+- [ ] Add capability-based security
+- [ ] Implement syscall forwarding to userspace
+
+## Driver Framework
+- [ ] Design driver API interface
+- [ ] Create driver registration system
+- [ ] Implement interrupt delegation
+- [ ] Add DMA management
+- [ ] Create PCI bus management server
+
+## Linux Compatibility
+- [ ] Complete Linux syscall emulation
+- [ ] Add procfs compatibility
+- [ ] Implement sysfs interface
+- [ ] Add device file system
+- [ ] Support Linux driver ABI
+
+## Memory Management
+- [ ] Implement COW paging
+- [ ] Add demand paging
+- [ ] Create shared memory regions
+- [ ] Implement memory mapping
+- [ ] Add NUMA support
+
+## Security
+- [ ] Add capability system
+- [ ] Implement MAC framework
+- [ ] Create secure IPC channels
+- [ ] Add resource isolation
+- [ ] Implement security server
+
+## Performance
+- [ ] Optimize IPC paths
+- [ ] Add fast syscall handling
+- [ ] Implement zero-copy transfers
+- [ ] Add scheduler optimization
+- [ ] Create performance monitoring

@@ -18,6 +18,15 @@ FEATURES
   - PIE binaries
   - Linux compatibility
 
+GOALS
+-----
+* Linux-compatible microkernel
+* Userspace driver framework
+* High-performance IPC
+* Security through isolation
+* Resource management
+* Driver API compatibility
+
 REQUIREMENTS
 -----------
 * x86_64 Linux system
@@ -74,3 +83,12 @@ Active development areas:
 * Process scheduling
 * Extended syscalls
 * Driver framework
+
+ARCHITECTURE
+-----------
+* Minimal kernel core
+* Drivers in userspace
+* Message-based IPC
+* Capability-based security
+* Memory server
+* Device framework

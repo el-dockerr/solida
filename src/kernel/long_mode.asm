@@ -4,27 +4,23 @@ extern kernel_main
 
 section .text
 setup_long_mode:
-    ; Print "32" marker
-    mov dword [0xb8000], 0x2f322f33   ; "32"
+    ; Debug marker
+    mov dword [0xb8000], 0x2f312f53   ; "S1"
 
-    ; Check for CPUID
-    pushfd
-    pop eax
-    mov ecx, eax
-    xor eax, 1 << 21
-    push eax
-    popfd
-    pushfd
-    pop eax
-    push ecx
-    popfd
-    xor eax, ecx
-    jz no_long_mode    ; Remove the dot
+    ; Clear page tables
+    mov edi, 0x1000
+    mov cr3, edi
+    xor eax, eax
+    mov ecx, 4096*3
+    rep stosd
 
-    ; Setup paging
+    ; Map first 2MB for both low and high memory
     mov dword [0x1000], 0x2003      ; P4[0] -> P3
     mov dword [0x2000], 0x3003      ; P3[0] -> P2
-    mov dword [0x3000], 0x83        ; P2[0] -> 2MB page
+    mov dword [0x3000], 0x83        ; P2[0] -> 2MB page with present, write, huge
+
+    ; Debug marker
+    mov dword [0xb8000], 0x2f322f53   ; "S2"
 
     ; Enable PAE
     mov eax, cr4
@@ -38,45 +34,52 @@ setup_long_mode:
     wrmsr
 
     ; Enable paging
-    mov eax, 0x1000
-    mov cr3, eax
     mov eax, cr0
     or eax, 1 << 31
     mov cr0, eax
 
-    ; Load 64-bit GDT
-    lgdt [GDT64.Pointer]
-    
-    ; Far jump to 64-bit code
-    jmp 0x08:long_mode_start    ; Remove the dot
+    ; Debug marker
+    mov dword [0xb8000], 0x2f332f53   ; "S3"
 
-no_long_mode:    ; Remove the dot
-    mov dword [0xb8000], 0x4f524f45  ; "ER"
-    hlt
+    ; Load new GDT
+    lgdt [GDT64.Pointer]
+
+    ; Far jump to 64-bit code
+    jmp 0x08:long_mode_start
 
 section .rodata
 align 8
 GDT64:
-    dq 0                ; Null descriptor
-    dq 0x00209A0000000000 ; 64-bit code segment
-    dq 0x0000920000000000 ; 64-bit data segment
+    dq 0                            ; Null descriptor
+    dq 0x00AF9A000000FFFF          ; 64-bit code segment (exec/read)
+    dq 0x00AF92000000FFFF          ; 64-bit data segment (read/write)
 .Pointer:
-    dw $ - GDT64 - 1   ; GDT size
-    dq GDT64           ; GDT address
+    dw $ - GDT64 - 1               ; Size
+    dq GDT64                       ; Address
+
+section .data
+align 4096
+stack_bottom:
+    resb 16384
+stack_top:
 
 [BITS 64]
-long_mode_start:    ; Remove the dot
-    ; Print "64" marker
-    mov rax, 0x2f342f36        ; "64"
+long_mode_start:
+    ; Debug marker
+    mov rax, 0x2f342f36           ; "64"
     mov qword [0xb8000], rax
 
-    ; Setup segment registers
-    mov ax, 0x10              ; Data segment
+    ; Setup stack
+    mov rsp, stack_top
+    mov rbp, rsp
+
+    ; Setup segments
+    mov ax, 0x10
     mov ds, ax
     mov es, ax
     mov fs, ax
     mov gs, ax
     mov ss, ax
 
-    ; Call kernel main
+    ; Call kernel
     call kernel_main

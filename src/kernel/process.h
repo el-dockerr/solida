@@ -3,15 +3,15 @@
 
 #include <stdint.h>
 
-#define PROCESS_STACK_SIZE 8192
-#define MAX_PROCESSES 256
+#define MAX_PROCESSES 16
+#define PROCESS_STACK_SIZE 16384  // Increased for 64-bit
 
 typedef struct {
-    int pid;
-    uint32_t entry_point;
-    uint32_t esp;
-    uint32_t ebp;
-    uint8_t stack[PROCESS_STACK_SIZE];
+    uint64_t pid;
+    uint64_t rsp;    // 64-bit stack pointer
+    uint64_t rbp;    // 64-bit base pointer
+    void* entry_point;
+    uint8_t stack[PROCESS_STACK_SIZE] __attribute__((aligned(16)));
 } process_t;
 
 int create_process(const char* path);

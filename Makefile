@@ -1,6 +1,10 @@
 CC = gcc
-CFLAGS = -ffreestanding -O2 -Wall -Wextra -nostdlib -m32 -I. -fno-pie
-LDFLAGS = -T linker.ld -nostdlib -fno-pie -m32 -z max-page-size=0x1000
+CFLAGS = -ffreestanding -O2 -Wall -Wextra -nostdlib -mcmodel=kernel \
+         -mno-red-zone -mno-mmx -mno-sse -mno-sse2 -fno-pie -fno-pic \
+         -m64 -mno-80387 -mno-fp-ret-in-387 -fno-stack-protector
+
+LDFLAGS = -T linker.ld -nostdlib -n -z max-page-size=0x1000 \
+          -static -no-pie
 
 SRC = src/kernel/main.c src/kernel/syscalls.c src/kernel/vga.c src/kernel/fs.c \
     src/kernel/interrupts.c src/kernel/process.c src/kernel/elf.c src/kernel/string.c \
@@ -8,7 +12,7 @@ SRC = src/kernel/main.c src/kernel/syscalls.c src/kernel/vga.c src/kernel/fs.c \
 OBJ = $(SRC:.c=.o)
 BIN = kernel.bin
 ISO = os.iso
-ASM = src/kernel/interrupt_handlers.asm
+ASM = src/kernel/interrupt_handlers.asm src/kernel/long_mode.asm
 ASMOBJ = $(ASM:.asm=.o)
 
 all: $(BIN) $(ISO)
@@ -16,14 +20,17 @@ all: $(BIN) $(ISO)
 init:
 	$(MAKE) -C apps/init
 
+debug: $(ISO)
+	./run.sh
+
 %.o: %.asm
-	nasm -f elf32 $< -o $@
+	nasm -f elf64 -F dwarf -w-other $< -o $@
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 $(BIN): $(OBJ) $(ASMOBJ)
-	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $(OBJ) $(ASMOBJ)
+	$(CC) -o $@ $(OBJ) $(ASMOBJ) $(CFLAGS) $(LDFLAGS)
 
 $(ISO): $(BIN) init
 	mkdir -p iso/boot/grub

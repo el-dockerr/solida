@@ -23,6 +23,7 @@ struct idtr {
 } __attribute__((packed));
 
 void interrupts_init(void);
+void setup_idt(void);
 void idt_set_gate(uint8_t num, uint32_t base, uint16_t sel, uint8_t flags);
 
 #endif

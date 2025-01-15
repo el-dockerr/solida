@@ -5,7 +5,7 @@
 #include "vga.h"
 
 static process_t processes[MAX_PROCESSES];
-static int next_pid = 1;
+static uint64_t next_pid = 1;
 
 static void print_hex_byte(uint8_t byte) {
     static const char hex[] = "0123456789ABCDEF";
@@ -69,9 +69,9 @@ int create_process(const char* path) {
     return -2;
 
 setup_process:
-    // Setup stack
-    proc->esp = (uint32_t)&proc->stack[PROCESS_STACK_SIZE - 16];
-    proc->ebp = proc->esp;
+    // Setup 64-bit stack
+    proc->rsp = (uint64_t)&proc->stack[PROCESS_STACK_SIZE - 16];
+    proc->rbp = proc->rsp;
 
     vga_print("Process created, switching...\n");
     switch_to_process(proc);
@@ -81,11 +81,11 @@ setup_process:
 
 void switch_to_process(process_t* proc) {
     asm volatile(
-        "mov %0, %%esp\n"
-        "mov %1, %%ebp\n"
-        "jmp *%2"
+        "mov %0, %%rsp\n"
+        "mov %1, %%rbp\n"
+        "jmpq *%2"
         : 
-        : "r"(proc->esp), "r"(proc->ebp), "r"(proc->entry_point)
+        : "r"(proc->rsp), "r"(proc->rbp), "r"(proc->entry_point)
         : "memory"
     );
 }

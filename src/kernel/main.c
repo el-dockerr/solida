@@ -1,3 +1,14 @@
+/*
+ * Solida64 - A Linux-compatible Microkernel OS
+ * Copyright (C) 2024 Swen Kalski aka. El Dockerr
+ * 
+ * This microkernel aims to provide Linux compatibility while keeping
+ * drivers in userspace for better security and reliability.
+ * 
+ * License: GPLv2
+ * Repository: https://github.com/el-dockerr/solida64
+ */
+
 #include "process.h"
 #include "elf.h"
 #include "syscalls.h"

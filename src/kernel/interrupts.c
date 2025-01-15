@@ -36,6 +36,19 @@ void idt_set_gate(uint8_t num, uint32_t base, uint16_t sel, uint8_t flags) {
     idt[num].flags = flags;
 }
 
+void setup_idt(void) {
+    static struct {
+        uint16_t length;
+        uint64_t base;
+    } __attribute__((packed)) IDTR;
+
+    // Setup IDT entries here
+    IDTR.length = (256 * 16) - 1;
+    IDTR.base = (uint64_t)&idt;
+    
+    __asm__ volatile("lidt %0" : : "m"(IDTR));
+}
+
 void interrupts_init(void) {
     // Set up IDT pointer
     idtr.limit = (sizeof(struct idt_entry) * IDT_ENTRIES) - 1;

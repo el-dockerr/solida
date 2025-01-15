@@ -1,43 +1,28 @@
-ENTRY(kernel_main)
+ENTRY(_start)
+OUTPUT_FORMAT(elf64-x86-64)
 
-SECTIONS
-{
-    /* Set the starting address to 1MB */
-    . = 1M;
+SECTIONS {
+    . = 0x100000;    /* Load at 1MB */
 
-    /* Multiboot header should be the first part of the text section */
-    .multiboot ALIGN(4):
-    {
+    .boot ALIGN(4K) : {
         *(.multiboot)
     }
 
-    .text :
-    {
+    .text ALIGN(4K) : {
         *(.text*)
     }
 
-    /* Read-only data */
-    .rodata :
-    {
+    .rodata ALIGN(4K) : {
         *(.rodata*)
     }
 
-    /* Data section */
-    .data :
-    {
+    .data ALIGN(4K) : {
         *(.data*)
     }
 
-    /* BSS section */
-    .bss :
-    {
+    .bss ALIGN(4K) : {
+        *(COMMON)
         *(.bss*)
-    }
-
-    /* Discard unused sections */
-    /DISCARD/ :
-    {
-        *(.comment)
-        *(.note*)
+        *(.bootstrap_stack)
     }
 }

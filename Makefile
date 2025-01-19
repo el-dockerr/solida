@@ -8,7 +8,7 @@ LDFLAGS = -T linker.ld -nostdlib -n -z max-page-size=0x1000 \
 
 SRC = src/kernel/main.c src/kernel/syscalls.c src/kernel/vga.c src/kernel/fs.c \
     src/kernel/interrupts.c src/kernel/process.c src/kernel/elf.c src/kernel/string.c \
-	src/kernel/linux_binary.c src/kernel/pie_loader.c
+	src/kernel/linux_binary.c src/kernel/pie_loader.c src/kernel/paging.c
 OBJ = $(SRC:.c=.o)
 BIN = kernel.bin
 ISO = os.iso

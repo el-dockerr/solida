@@ -1,4 +1,5 @@
 #include "vga.h"
+#include "io.h"
 
 #define VGA_ADDRESS 0xB8000
 #define MAX_ROWS 25
@@ -27,6 +28,7 @@ static void scroll(void) {
 }
 
 void vga_print_char(char c) {
+    outb(0xe9, c);
     if (c == '\n') {
         current_row++;
         current_col = 0;
@@ -64,6 +66,7 @@ void vga_print_hex(uint64_t num) {
 
 void vga_print(const char* str) {
     while(*str) {
+        outb(0xe9, *str);
         if(*str == '\n') {
             current_row++;
             current_col = 0;

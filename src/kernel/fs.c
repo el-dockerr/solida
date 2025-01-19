@@ -63,6 +63,8 @@ static struct iso_primary_volume_descriptor* pvd;
 static struct iso_directory_entry* root_dir;
 
 void fs_init(void) {
+    vga_print("Starting ISO9660 filesystem initialization...\n");
+
     // Initialize file table
     for (int i = 0; i < MAX_FILES; i++) {
         files[i].path[0] = '\0';
@@ -70,35 +72,55 @@ void fs_init(void) {
         files[i].size = 0;
     }
 
-    vga_print("ISO_START: ");
-    vga_print_hex((uint64_t)ISO_START);
+    // Debug: Print memory contents at ISO_START
+    vga_print("First bytes at ISO_START: ");
+    uint8_t* iso_ptr = (uint8_t*)ISO_START;
+    for(int i = 0; i < 16; i++) {
+        vga_print_hex(iso_ptr[i]);
+        vga_print(" ");
+    }
     vga_print("\n");
 
     // Find Primary Volume Descriptor (starts at sector 16)
     pvd = (struct iso_primary_volume_descriptor*)(ISO_START + (16 * SECTOR_SIZE));
     
-    vga_print("PVD Address: ");
-    vga_print_hex((uint64_t)pvd);
-    vga_print("\n");
-
-    vga_print("PVD Type: ");
-    vga_print_hex(pvd->type);
-    vga_print("\n");
-
-    vga_print("ISO ID: ");
+    vga_print("PVD Signature: ");
     for(int i = 0; i < 5; i++) {
         vga_print_char(pvd->id[i]);
     }
     vga_print("\n");
 
-    // Verify ISO9660 signature
-    if (pvd->type != 1 || strncmp(pvd->id, "CD001", 5) != 0) {
-        vga_print("Invalid ISO9660 filesystem!\n");
+    // Detailed PVD checks
+    vga_print("PVD Type: ");
+    vga_print_hex(pvd->type);
+    vga_print("\n");
+
+    // Verify full ISO9660 signature with detailed error
+    if (pvd->type != 1) {
+        vga_print("Error: Invalid PVD type (expected 1)\n");
+        return;
+    }
+
+    if (strncmp(pvd->id, "CD001", 5) != 0) {
+        vga_print("Error: Invalid ISO signature (expected CD001)\n");
+        vga_print("Found: ");
+        for(int i = 0; i < 5; i++) {
+            vga_print_hex(pvd->id[i]);
+            vga_print(" ");
+        }
+        vga_print("\n");
         return;
     }
 
     root_dir = &pvd->root_directory_record;
-    vga_print("ISO9660 filesystem initialized\n");
+    vga_print("ISO9660 filesystem initialized successfully\n");
+    
+    // Print volume information
+    vga_print("Volume ID: ");
+    for(int i = 0; i < 32 && pvd->volume_id[i] != ' '; i++) {
+        vga_print_char(pvd->volume_id[i]);
+    }
+    vga_print("\n");
 }
 
 int fs_read(const char* path, void* buffer, size_t size) {

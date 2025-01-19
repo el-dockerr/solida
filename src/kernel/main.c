@@ -15,6 +15,7 @@
 #include "vga.h"
 #include "fs.h"
 #include "interrupts.h"
+#include "paging.h"
 
 #include <stdint.h>
 
@@ -66,6 +67,9 @@ void kernel_main(void) {
     
     vga_print("64-bit mode confirmed\n");
     
+    // Initialize paging before filesystem
+    init_paging();
+
     // Continue with initialization
     fs_init();
     syscall_init();

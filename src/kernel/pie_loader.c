@@ -14,7 +14,7 @@ static void print_hex(uint32_t value) {
     }
 }
 
-static void* memset(void* s, int c, size_t n) {
+static void* pie_memset(void* s, int c, size_t n) {
     unsigned char* p = s;
     while(n--) {
         *p++ = (unsigned char)c;
@@ -56,7 +56,7 @@ int load_pie(const char* path, void** entry_point) {
             // Clear BSS
             if (ph.memsz > ph.filesz) {
                 uint64_t bss_size = ph.memsz - ph.filesz;
-                memset((void*)(ph.vaddr + ph.filesz), 0, bss_size);
+                pie_memset((void*)(ph.vaddr + ph.filesz), 0, bss_size);
             }
         }
         offset += header.phentsize;

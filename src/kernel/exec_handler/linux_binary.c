@@ -1,6 +1,6 @@
 #include "linux_binary.h"
-#include "fs.h"
-#include "vga.h"
+#include "../fs.h"
+#include "../vga.h"
 
 #define LINUX_MAGIC 0xC0061200
 

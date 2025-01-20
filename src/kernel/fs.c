@@ -1,6 +1,6 @@
 #include "fs.h"
 #include "vga.h"
-#include "string.h"
+#include "lib/string.h"
 
 #define MAX_FILES 16
 #define ISO_START 0x100000 // Assuming ISO is loaded here

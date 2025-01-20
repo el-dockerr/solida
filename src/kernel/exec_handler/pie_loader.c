@@ -1,6 +1,6 @@
 #include "pie_loader.h"
-#include "fs.h"
-#include "vga.h"
+#include "../fs.h"
+#include "../vga.h"
 #include "memory.h"
 
 #define PIE_MAGIC 0x1CFF0700

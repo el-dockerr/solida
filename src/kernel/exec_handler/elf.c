@@ -1,7 +1,7 @@
 #include "elf.h"
-#include "fs.h"
-#include "vga.h"
-#include "string.h"
+#include "../fs.h"
+#include "../vga.h"
+#include "../lib/string.h"
 
 static void print_hex_byte(uint8_t byte) {
     static const char hex[] = "0123456789ABCDEF";

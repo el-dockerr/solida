@@ -10,7 +10,6 @@
  */
 
 #include "process.h"
-#include "elf.h"
 #include "syscalls.h"
 #include "vga.h"
 #include "fs.h"
@@ -18,24 +17,6 @@
 #include "paging.h"
 
 #include <stdint.h>
-
-struct multiboot2_header {
-    uint32_t magic;
-    uint32_t architecture;
-    uint32_t header_length;
-    uint32_t checksum;
-    uint16_t type;
-    uint16_t flags;
-    uint32_t size;
-} __attribute__((packed)) __attribute__((section(".multiboot"))) multiboot_hdr = {
-    .magic = 0xE85250D6,
-    .architecture = 0,
-    .header_length = sizeof(struct multiboot2_header),
-    .checksum = -(0xE85250D6 + 0 + sizeof(struct multiboot2_header)),
-    .type = 0,
-    .flags = 0,
-    .size = 8
-};
 
 void _start(void) {
     // Clear interrupts
@@ -64,8 +45,6 @@ void kernel_main(void) {
         vga_print("Not in 64-bit mode!\n");
         while(1) __asm__ volatile("hlt");
     }
-    
-    vga_print("64-bit mode confirmed\n");
     
     // Initialize paging before filesystem
     init_paging();

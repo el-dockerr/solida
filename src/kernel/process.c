@@ -1,7 +1,7 @@
 #include "process.h"
-#include "elf.h"
-#include "linux_binary.h"
-#include "pie_loader.h"
+#include "exec_handler/elf.h"
+#include "exec_handler/linux_binary.h"
+#include "exec_handler/pie_loader.h"
 #include "vga.h"
 
 static process_t processes[MAX_PROCESSES];
